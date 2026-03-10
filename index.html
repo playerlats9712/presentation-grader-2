@@ -3,151 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Präsentations-Feedback Profi</title>
+    <title>Akademisches Feedback-System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            background-color: #0b0f19;
-            color: #e5e7eb;
-            font-family: 'Inter', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
         }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+        }
+
         .card {
-            background-color: #111827;
-            border: 1px solid #1f2937;
+            background-color: var(--card-dark);
+            border: 1px solid #334155;
             border-radius: 0.75rem;
         }
-        .input-dark {
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
+
+        .input-field {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
         }
-        .btn-primary {
-            background-color: #2563eb;
-            transition: background-color 0.2s;
+
+        .score-pill {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: #334155;
+            color: #94a3b8;
         }
-        .btn-primary:hover {
-            background-color: #1d4ed8;
+
+        .score-active {
+            background: var(--primary) !important;
+            color: white !important;
         }
+
+        /* iOS & General Print Fixes */
         @media print {
+            @page { 
+                margin: 1.5cm; 
+                size: A4 vertical;
+            }
+            
+            html, body {
+                background: white !important;
+                color: black !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
             .no-print { display: none !important; }
-            body { background-color: white; color: black; }
-            .card { border: none; background: white; color: black; }
-            .input-dark { border: 1px solid #ccc; color: black; background: white; }
+            
+            .max-w-6xl { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
+            
+            .card { 
+                border: 1px solid #e2e8f0 !important; 
+                background: white !important; 
+                border-radius: 4px !important; 
+                margin-bottom: 2rem !important; 
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+
+            .score-pill { 
+                border: 1px solid #cbd5e1 !important; 
+                background: transparent !important; 
+                color: #cbd5e1 !important; 
+            }
+
+            .score-active { 
+                background: #2563eb !important; 
+                color: white !important; 
+                border: none !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .text-white, h1, h2, h3 { color: black !important; }
+            .text-blue-400, .text-blue-500 { color: #2563eb !important; }
+            
+            textarea { 
+                border: 1px solid #e2e8f0 !important; 
+                height: auto !important; 
+                min-height: 50px !important;
+                overflow: visible !important;
+                color: #334155 !important;
+                background: #f8fafc !important;
+            }
+
+            .chart-area { 
+                page-break-before: always; 
+                padding-top: 1rem;
+                display: block !important;
+            }
+            
+            /* Ensure grid collapses correctly */
+            .grid { display: block !important; }
+            .lg\:col-span-8, .lg\:col-span-4 { width: 100% !important; }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
     <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold">Präsentations-Feedback</h1>
-                <p class="text-gray-400">Individueller Ergebnisbericht</p>
+        <!-- Dashboard Header -->
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6 no-print">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-blue-600 rounded-2xl shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black tracking-tighter text-white uppercase">Evaluator <span class="text-blue-500">Pro</span></h1>
+                    <p class="text-slate-400 text-sm font-medium uppercase tracking-widest">Akademisches Feedback</p>
+                </div>
             </div>
-            <div class="flex gap-2 no-print">
-                <button onclick="exportJSON()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm transition">Vorlage Exportieren</button>
-                <label class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
-                    Vorlage Importieren
+            
+            <div class="flex flex-wrap gap-3">
+                <button onclick="exportJSON()" class="btn-action bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Export</button>
+                <label class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                    Import
                     <input type="file" id="importFile" class="hidden" accept=".json" onchange="importJSON(event)">
                 </label>
-                <button onclick="window.print()" class="btn-primary px-6 py-2 rounded-lg font-semibold shadow-lg">Als PDF exportieren</button>
+                <button onclick="prepareAndPrint()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg transition">Bericht drucken</button>
             </div>
+        </header>
+
+        <!-- Druck-Header -->
+        <div class="hidden print:block mb-8 border-b-2 border-black pb-4">
+            <h1 class="text-2xl font-bold">Evaluationsbericht: Präsentation</h1>
+            <p id="printDate" class="text-sm text-gray-600"></p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Linke Spalte: Informationen & Kriterien -->
-            <div class="lg:col-span-2 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-8 space-y-8">
                 
-                <!-- Informationen Card -->
-                <div class="card p-6">
-                    <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Informationen</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex flex-col">
-                            <label class="text-sm text-gray-400 mb-1">Referent/in</label>
-                            <input type="text" placeholder="Name" class="input-dark">
+                <!-- Stammdaten -->
+                <section class="card p-8">
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Präsentationsdetails</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-300 print:text-gray-700">Kandidat/in</label>
+                            <input type="text" id="candidateName" placeholder="Name eintragen" class="input-field w-full print:font-bold">
                         </div>
-                        <div class="flex flex-col">
-                            <label class="text-sm text-gray-400 mb-1">Thema</label>
-                            <input type="text" placeholder="Titel der Präsentation" class="input-dark">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-300 print:text-gray-700">Thema</label>
+                            <input type="text" id="topicName" placeholder="Titel der Arbeit" class="input-field w-full print:font-bold">
                         </div>
                     </div>
+                </section>
+
+                <!-- Kriterien Liste -->
+                <div id="criteriaList" class="space-y-8"></div>
+
+                <div class="no-print pt-4">
+                    <button onclick="addCriterion()" class="w-full py-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 hover:border-blue-500 hover:text-blue-500 transition-all font-bold uppercase tracking-widest text-xs">
+                        + Neue Kategorie hinzufügen
+                    </button>
                 </div>
 
-                <!-- Bewertungskriterien Card -->
-                <div class="card p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold">Bewertungskriterien</h2>
-                        <div class="flex gap-2 no-print">
-                            <input type="text" id="newCriterionName" placeholder="Neues Kriterium..." class="input-dark text-sm w-40">
-                            <button onclick="addCriterion()" class="bg-blue-600 hover:bg-blue-500 w-8 h-8 rounded-lg flex items-center justify-center font-bold">+</button>
-                        </div>
+                <!-- Chart Sektion -->
+                <section class="chart-area card p-10 flex flex-col items-center">
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-10 print:text-black">Kompetenzprofil (Radar-Chart)</h2>
+                    <div class="relative h-[400px] w-full max-w-xl">
+                        <canvas id="radarChart"></canvas>
                     </div>
-                    
-                    <div id="criteriaList" class="space-y-4">
-                        <!-- Items werden per JS eingefügt -->
-                    </div>
-                </div>
+                </section>
             </div>
 
-            <!-- Rechte Spalte: Gesamtergebnis & Visualisierung -->
-            <div class="space-y-6">
-                <div class="card p-6 text-center sticky top-8">
-                    <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Gesamtergebnis</p>
-                    <div id="totalScore" class="text-7xl font-bold text-blue-500 mb-4">0.0</div>
-                    
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-4">Visualisierung</p>
-                        <div class="relative h-64 w-full flex items-center justify-center">
-                            <canvas id="radarChart"></canvas>
+            <!-- Sidebar Zusammenfassung -->
+            <aside class="lg:col-span-4 no-print">
+                <div class="sticky top-8 space-y-6">
+                    <div class="card p-8 border-t-8 border-blue-600 shadow-2xl">
+                        <h3 class="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-8">Gesamtergebnis</h3>
+                        
+                        <div class="flex flex-col items-center justify-center mb-10">
+                            <div id="totalScore" class="text-8xl font-black text-white tracking-tighter">0.0</div>
+                            <div class="h-1.5 w-24 bg-blue-600 rounded-full mt-2"></div>
+                            <p class="text-slate-400 text-[10px] mt-4 uppercase font-bold tracking-widest">Mittelwert (Gewichtet)</p>
+                        </div>
+
+                        <div id="summaryStats" class="space-y-6"></div>
+
+                        <div class="mt-10 pt-8 border-t border-slate-700">
+                            <div class="flex gap-2">
+                                <input type="text" id="newCatInput" placeholder="Kategorie Name..." class="input-field flex-1 text-sm py-2">
+                                <button onclick="addCriterion()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 rounded-lg font-bold">+</button>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="text-left mt-6">
-                        <p class="text-xs text-gray-500 italic">* Die Gewichtung beeinflusst das Gesamtergebnis (Standard: 1.0)</p>
-                    </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 
     <script>
         let criteria = [
-            { id: 1, name: 'Ausdrucksweise', score: 0, weight: 1.0 },
-            { id: 2, name: 'Qualität der Präsentation', score: 0, weight: 1.0 },
-            { id: 3, name: 'Korrektheit der Infos', score: 0, weight: 1.0 },
-            { id: 4, name: 'Persönlicher Nutzen/Wirkung', score: 0, weight: 1.0 }
+            { id: 1, name: 'Inhalt & Struktur', weight: 4.0, comment: '', subpoints: [{ id: 101, text: 'Fachliche Tiefe', score: 0 }, { id: 102, text: 'Roter Faden', score: 0 }] },
+            { id: 2, name: 'Rhetorik', weight: 3.0, comment: '', subpoints: [{ id: 201, text: 'Freies Sprechen', score: 0 }, { id: 202, text: 'Präsenz', score: 0 }] },
+            { id: 3, name: 'Visualisierung', weight: 3.0, comment: '', subpoints: [{ id: 301, text: 'Folienlayout', score: 0 }] }
         ];
 
-        let chart = null;
+        let radarChart = null;
 
         function initChart() {
             const ctx = document.getElementById('radarChart').getContext('2d');
-            chart = new Chart(ctx, {
+            radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: criteria.map(c => c.name),
                     datasets: [{
-                        label: 'Bewertung',
-                        data: criteria.map(c => c.score),
-                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                        borderColor: '#2563eb',
-                        pointBackgroundColor: '#2563eb',
-                        borderWidth: 2
+                        data: criteria.map(c => calculateCategoryScore(c)),
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6',
+                        pointBackgroundColor: '#3b82f6',
+                        borderWidth: 3
                     }]
                 },
                 options: {
+                    animation: false, // Wichtig für iOS Druck
                     scales: {
                         r: {
-                            min: 0,
-                            max: 5,
-                            beginAtZero: true,
-                            grid: { color: '#374151' },
-                            angleLines: { color: '#374151' },
-                            pointLabels: { color: '#9ca3af' },
+                            min: 0, max: 5, beginAtZero: true,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            angleLines: { color: 'rgba(148, 163, 184, 0.1)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 12, weight: '600' } },
                             ticks: { display: false, stepSize: 1 }
                         }
                     },
@@ -158,122 +256,168 @@
             });
         }
 
+        function calculateCategoryScore(criterion) {
+            const active = criterion.subpoints.filter(s => s.score > 0);
+            return active.length > 0 ? active.reduce((a, b) => a + b.score, 0) / active.length : 0;
+        }
+
         function renderCriteria() {
             const container = document.getElementById('criteriaList');
+            const summaryStats = document.getElementById('summaryStats');
             container.innerHTML = '';
+            summaryStats.innerHTML = '';
+
+            let totalWeight = criteria.reduce((acc, curr) => acc + curr.weight, 0);
+            let weightedSum = 0;
 
             criteria.forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-800 rounded-lg border border-gray-700 transition-all hover:border-gray-500 group';
-                
-                div.innerHTML = `
-                    <div class="flex-1 mb-3 md:mb-0">
-                        <div class="flex items-center gap-2">
-                            <span class="font-medium">${c.name}</span>
-                            <button onclick="removeCriterion(${c.id})" class="no-print opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-sm transition">×</button>
+                const score = calculateCategoryScore(c);
+                weightedSum += (score * c.weight);
+
+                const card = document.createElement('div');
+                card.className = 'card overflow-hidden criteria-section';
+                card.innerHTML = `
+                    <div class="bg-slate-800/40 print:bg-gray-50 p-6 flex justify-between items-center border-b border-slate-700/50 print:border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded text-xs font-bold no-print">
+                                GEWICHT: <input type="number" step="0.1" value="${c.weight}" onchange="updateWeight(${c.id}, this.value)" class="bg-transparent w-8 text-center outline-none">
+                            </div>
+                            <h3 class="text-lg font-bold text-white print:text-black uppercase">${c.name}</h3>
                         </div>
-                        <div class="flex items-center gap-2 mt-1 no-print">
-                            <label class="text-[10px] text-gray-500 uppercase">Gewichtung:</label>
-                            <input type="number" step="0.1" value="${c.weight}" 
-                                onchange="updateWeight(${c.id}, this.value)"
-                                class="bg-transparent border-b border-gray-600 text-xs w-12 text-blue-400 focus:outline-none">
-                        </div>
+                        <span class="text-3xl font-black text-blue-400 font-mono">${score.toFixed(1)}</span>
                     </div>
-                    <div class="flex gap-2">
-                        ${[1, 2, 3, 4, 5].map(num => `
-                            <button onclick="setScore(${c.id}, ${num})" 
-                                class="w-10 h-10 rounded flex items-center justify-center transition-all ${c.score === num ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
-                                ${num}
-                            </button>
-                        `).join('')}
+                    <div class="p-6 space-y-4">
+                        <div class="space-y-2">
+                            ${c.subpoints.map(sub => `
+                                <div class="flex items-center justify-between p-3 bg-slate-900/30 print:bg-white rounded-lg border border-transparent print:border-gray-100">
+                                    <div class="flex items-center gap-3">
+                                        <button onclick="removeSubpoint(${c.id}, ${sub.id})" class="no-print text-slate-600 hover:text-red-500">&times;</button>
+                                        <span class="text-sm font-medium text-slate-300 print:text-gray-700">${sub.text}</span>
+                                    </div>
+                                    <div class="flex gap-1.5">
+                                        ${[1,2,3,4,5].map(v => `
+                                            <div onclick="setScore(${c.id}, ${sub.id}, ${v})" 
+                                                 class="score-pill text-xs ${sub.score === v ? 'score-active' : ''}">${v}</div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block print:text-gray-400">Feedback / Kommentar</label>
+                            <textarea onchange="updateComment(${c.id}, this.value)" 
+                                      placeholder="Feedback eingeben..." 
+                                      class="input-field w-full min-h-[80px] text-sm print:text-gray-800">${c.comment || ''}</textarea>
+                        </div>
+                        <button onclick="addSubpoint(${c.id})" class="no-print text-[10px] font-bold text-blue-500 uppercase mt-2">+ Kriterium ergänzen</button>
+                    </div>
+                    <div class="no-print px-6 py-2 bg-slate-900/50 flex justify-end">
+                        <button onclick="removeCriterion(${c.id})" class="text-[10px] text-slate-600 hover:text-red-500 font-bold uppercase">Kategorie löschen</button>
                     </div>
                 `;
-                container.appendChild(div);
+                container.appendChild(card);
+
+                const statRow = document.createElement('div');
+                statRow.className = 'space-y-1.5';
+                statRow.innerHTML = `
+                    <div class="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                        <span class="text-slate-500">${c.name}</span>
+                        <span class="text-white">${score.toFixed(1)}</span>
+                    </div>
+                    <div class="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500" style="width: ${score * 20}%"></div>
+                    </div>
+                `;
+                summaryStats.appendChild(statRow);
             });
 
-            updateTotal();
-            if(chart) {
-                chart.data.labels = criteria.map(c => c.name);
-                chart.data.datasets[0].data = criteria.map(c => c.score);
-                chart.update();
+            const final = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(1) : "0.0";
+            document.getElementById('totalScore').innerText = final;
+            document.getElementById('printDate').innerText = `Datum: ${new Date().toLocaleDateString('de-DE')}`;
+
+            if (radarChart) {
+                radarChart.data.labels = criteria.map(c => c.name);
+                radarChart.data.datasets[0].data = criteria.map(c => calculateCategoryScore(c));
+                radarChart.update();
             }
         }
 
+        async function prepareAndPrint() {
+            // Force rerender without animations
+            if (radarChart) {
+                radarChart.options.animation = false;
+                radarChart.update();
+            }
+            
+            // Kleine Verzögerung für iOS Renderer
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        function setScore(cId, sId, val) {
+            const c = criteria.find(x => x.id === cId);
+            const s = c.subpoints.find(y => y.id === sId);
+            s.score = s.score === val ? 0 : val;
+            renderCriteria();
+        }
+
+        function updateWeight(id, val) {
+            criteria.find(x => x.id === id).weight = parseFloat(val) || 0;
+            renderCriteria();
+        }
+
+        function updateComment(id, val) {
+            criteria.find(x => x.id === id).comment = val;
+        }
+
+        function addSubpoint(cId) {
+            const text = prompt("Name des Kriteriums:");
+            if (text) {
+                criteria.find(c => c.id === cId).subpoints.push({ id: Date.now(), text, score: 0 });
+                renderCriteria();
+            }
+        }
+
+        function removeSubpoint(cId, sId) {
+            const c = criteria.find(x => x.id === cId);
+            c.subpoints = c.subpoints.filter(y => y.id !== sId);
+            renderCriteria();
+        }
+
         function addCriterion() {
-            const input = document.getElementById('newCriterionName');
+            const input = document.getElementById('newCatInput');
             const name = input.value.trim();
             if (name) {
-                criteria.push({
-                    id: Date.now(),
-                    name: name,
-                    score: 0,
-                    weight: 1.0
-                });
+                criteria.push({ id: Date.now(), name, weight: 1.0, comment: '', subpoints: [] });
                 input.value = '';
                 renderCriteria();
             }
         }
 
         function removeCriterion(id) {
-            criteria = criteria.filter(c => c.id !== id);
-            renderCriteria();
-        }
-
-        function setScore(id, score) {
-            const index = criteria.findIndex(c => c.id === id);
-            if (index !== -1) {
-                criteria[index].score = criteria[index].score === score ? 0 : score;
+            if(confirm("Kategorie wirklich löschen?")) {
+                criteria = criteria.filter(c => c.id !== id);
                 renderCriteria();
             }
         }
 
-        function updateWeight(id, weight) {
-            const index = criteria.findIndex(c => c.id === id);
-            if (index !== -1) {
-                criteria[index].weight = parseFloat(weight) || 1.0;
-                updateTotal();
-            }
-        }
-
-        function updateTotal() {
-            let totalWeight = 0;
-            let weightedSum = 0;
-
-            criteria.forEach(c => {
-                weightedSum += (c.score * c.weight);
-                totalWeight += c.weight;
-            });
-
-            const result = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(1) : "0.0";
-            document.getElementById('totalScore').innerText = result;
-        }
-
         function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(criteria));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "feedback_vorlage.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            const blob = new Blob([JSON.stringify(criteria)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Bewertung_${document.getElementById('candidateName').value || 'Report'}.json`;
+            a.click();
         }
 
-        function importJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        function importJSON(e) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        criteria = imported;
-                        renderCriteria();
-                    }
-                } catch (err) {
-                    alert("Ungültige JSON-Datei");
-                }
+            reader.onload = event => {
+                criteria = JSON.parse(event.target.result);
+                renderCriteria();
             };
-            reader.readAsText(file);
+            reader.readAsText(e.target.files[0]);
         }
 
         window.onload = () => {
